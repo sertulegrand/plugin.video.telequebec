@@ -63,7 +63,7 @@ def getURLtxt(url):
 
 def getBlock(url):
         link = getURLtxt(url)
-        main = rechercherUnElement('content index(.+?)<footer>',link)
+        main = rechercherUnElement('content azsContainer index(.+?)<footer>',link)
         return main
 def getCategories(url):
         main = getBlock(url)
@@ -143,7 +143,7 @@ def creerListeSaisons(link):
        match = re.compile('<li(.+?)</li>',re.DOTALL).findall(sub)
        for saisonTxt in match:
                nbSaisons = nbSaisons+1
-               nomSaison = rechercherUnElement('<a.*?>(.+?)</a>',saisonTxt)
+               nomSaison = rechercherUnElement('<a.*?><span class="icon"></span>(.+?)</a>',saisonTxt)
                addDirSaison(nomSaison,url,'',nbSaisons)
        if nbSaisons==0:
                creerListeEpisodes(url,1,fullName)
@@ -164,7 +164,8 @@ def creerListeEpisodes(url,saison,nomComplet):
         if len(containerSaison)<saison:
                 debugPrint('Probleme de scraper de saisons')
         else:
-                 liste = re.split('<div class="item"',containerSaison[saison])
+		 containerSaisonStr = ''.join(containerSaison)
+                 liste = re.split('<div class="item',containerSaisonStr)
                  for item in liste:
                         sub2 = re.compile('<div class="info">(.+?)</div>',re.DOTALL).findall(item)
                         if len(sub2)>0:
