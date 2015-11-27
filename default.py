@@ -115,7 +115,7 @@ def creerMenuCategories():
 	addDir('Magazine',urlAZ,1,'','7',0)
 	addDir('S%C3%A9ries de fiction',urlAZ,1,'','9',0)
 	addDir('Vari%C3%A9t%C3%A9s',urlAZ,1,'','10',0)
-        addDir('- Populaires -',TELEQUEBEC_BASE_URL+'/populaires/',2,'','0',1)
+	addDir('- Populaires -',TELEQUEBEC_BASE_URL+'/populaires/',2,'','0',1)
         addDir('- Dossiers -',TELEQUEBEC_BASE_URL+'/dossiers/',6,'','0',1)
         addDir('- R%C3%A9cents -',TELEQUEBEC_BASE_URL,2,'','0',1)
 
