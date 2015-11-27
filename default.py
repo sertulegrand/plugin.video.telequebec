@@ -1,24 +1,24 @@
 # -*- coding: cp1252 -*-
 import urllib,urllib2,re,xbmcplugin,xbmcaddon,xbmcgui,xbmc,simplejson
 
-# version 2.6
+# version 2.5
 #By CB
 
 TELEQUEBEC_BASE_URL = 'http://zonevideo.telequebec.tv'
 
-#Merci à l'auteur de cette fonction
+#Merci Ã  l'auteur de cette fonction
 def unescape_callback(matches):
 	html_entities = {
-		'quot':'\"', 'amp':'&', 'apos':'\'', 'lt':'<', 'gt':'>', 'nbsp':' ', 'copy':'©', 'reg':'®',
-		'Agrave':'À', 'Aacute':'Á', 'Acirc':'Â', 'Atilde':'Ã', 'Auml':'Ä', 'Aring':'Å', 'AElig':'Æ',
-		'Ccedil':'Ç', 'Egrave':'È', 'Eacute':'É', 'Ecirc':'Ê', 'Euml':'Ë', 'Igrave':'Ì', 'Iacute':'Í',
-		'Icirc':'Î', 'Iuml':'Ï', 'ETH':'Ð', 'Ntilde':'Ñ', 'Ograve':'Ò', 'Oacute':'Ó', 'Ocirc':'Ô',
-		'Otilde':'Õ', 'Ouml':'Ö', 'Oslash':'Ø', 'Ugrave':'Ù', 'Uacute':'Ú', 'Ucirc':'Û', 'Uuml':'Ü',
-		'Yacute':'Ý', 'agrave':'à', 'aacute':'á', 'acirc':'â', 'atilde':'ã', 'auml':'ä', 'aring':'å',
-		'aelig':'æ', 'ccedil':'ç', 'egrave':'è', 'eacute':'é', 'ecirc':'ê', 'euml':'ë', 'igrave':'ì',
-		'iacute':'í', 'icirc':'î', 'iuml':'ï', 'eth':'ð', 'ntilde':'ñ', 'ograve':'ò', 'oacute':'ó',
-		'ocirc':'ô', 'otilde':'õ', 'ouml':'ö', 'oslash':'ø', 'ugrave':'ù', 'uacute':'ú', 'ucirc':'û',
-		'uuml':'ü', 'yacute':'ý', 'yuml':'ÿ'
+		'quot':'\"', 'amp':'&', 'apos':'\'', 'lt':'<', 'gt':'>', 'nbsp':' ', 'copy':'Â©', 'reg':'Â®',
+		'Agrave':'Ã€', 'Aacute':'Ã', 'Acirc':'Ã‚', 'Atilde':'Ãƒ', 'Auml':'Ã„', 'Aring':'Ã…', 'AElig':'Ã†',
+		'Ccedil':'Ã‡', 'Egrave':'Ãˆ', 'Eacute':'Ã‰', 'Ecirc':'ÃŠ', 'Euml':'Ã‹', 'Igrave':'ÃŒ', 'Iacute':'Ã',
+		'Icirc':'ÃŽ', 'Iuml':'Ã', 'ETH':'Ã', 'Ntilde':'Ã‘', 'Ograve':'Ã’', 'Oacute':'Ã“', 'Ocirc':'Ã”',
+		'Otilde':'Ã•', 'Ouml':'Ã–', 'Oslash':'Ã˜', 'Ugrave':'Ã™', 'Uacute':'Ãš', 'Ucirc':'Ã›', 'Uuml':'Ãœ',
+		'Yacute':'Ã', 'agrave':'Ã ', 'aacute':'Ã¡', 'acirc':'Ã¢', 'atilde':'Ã£', 'auml':'Ã¤', 'aring':'Ã¥',
+		'aelig':'Ã¦', 'ccedil':'Ã§', 'egrave':'Ã¨', 'eacute':'Ã©', 'ecirc':'Ãª', 'euml':'Ã«', 'igrave':'Ã¬',
+		'iacute':'Ã­', 'icirc':'Ã®', 'iuml':'Ã¯', 'eth':'Ã°', 'ntilde':'Ã±', 'ograve':'Ã²', 'oacute':'Ã³',
+		'ocirc':'Ã´', 'otilde':'Ãµ', 'ouml':'Ã¶', 'oslash':'Ã¸', 'ugrave':'Ã¹', 'uacute':'Ãº', 'ucirc':'Ã»',
+		'uuml':'Ã¼', 'yacute':'Ã½', 'yuml':'Ã¿'
 	}
 
 	entity = matches.group(0)
@@ -115,7 +115,7 @@ def creerMenuCategories():
 	addDir('Magazine',urlAZ,1,'','7',0)
 	addDir('S%C3%A9ries de fiction',urlAZ,1,'','9',0)
 	addDir('Vari%C3%A9t%C3%A9s',urlAZ,1,'','10',0)
-	addDir('- Populaires -',TELEQUEBEC_BASE_URL+'/populaires/',2,'','0',1)
+        addDir('- Populaires -',TELEQUEBEC_BASE_URL+'/populaires/',2,'','0',1)
         addDir('- Dossiers -',TELEQUEBEC_BASE_URL+'/dossiers/',6,'','0',1)
         addDir('- R%C3%A9cents -',TELEQUEBEC_BASE_URL,2,'','0',1)
 
@@ -202,18 +202,18 @@ def trouverInfosEpisode(url):
 def JOUERVIDEO(url,name,url_info):
         link = getURLtxt(url)
 
-        #Obtenir mediaUID pure de l'émission
+        #Obtenir mediaUID pure de l'Ã©mission
         mediaUID = rechercherUnElement('mediaUID: \'Limelight_(.+?)\'',link)
 
         #Obtenir JSON avec liens RTMP du playlistService
         link = getURLtxt('http://production.ps.delve.cust.lldns.net/r/PlaylistService/media/%s/getPlaylistByMediaId' % mediaUID)
         videoJSON = simplejson.loads(link)
 
-        #Preparer list de videos à jouer
+        #Preparer list de videos Ã  jouer
         playlist = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
         playlist.clear()
 
-        #Analyser chaque stream disponible pour trouver la meilleure qualité
+        #Analyser chaque stream disponible pour trouver la meilleure qualitÃ©
         for playlistItem in videoJSON['playlistItems']:
             highestBitRate = 0
             streamURL = None
@@ -223,11 +223,11 @@ def JOUERVIDEO(url,name,url_info):
                     streamURL = stream['url']
 
             if streamURL:
-                #Séparer le lien en RTMP et PLAYPATH
+                #SÃ©parer le lien en RTMP et PLAYPATH
                 rtmpUrl = streamURL[:streamURL.find('mp4')]
                 playPath = streamURL[streamURL.find('mp4'):]
 
-                #Générer un lien compatible pour librtmp
+                #GÃ©nÃ©rer un lien compatible pour librtmp
                 swfUrl = 'http://s.delvenetworks.com/deployments/flash-player/flash-player-5.10.1.swf?playerForm=Chromeless'
                 url = '%s playPath=%s swfUrl=%s swfVfy=true' % (rtmpUrl, playPath, swfUrl)
 
