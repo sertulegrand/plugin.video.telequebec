@@ -1,48 +1,48 @@
 # -*- coding: cp1252 -*-
 import urllib,urllib2,re,xbmcplugin,xbmcaddon,xbmcgui,xbmc,simplejson
 
-# version 2.5
+# version 2.6
 #By CB
 
 TELEQUEBEC_BASE_URL = 'http://zonevideo.telequebec.tv'
 
-#Merci Ã  l'auteur de cette fonction
+#Merci à l'auteur de cette fonction
 def unescape_callback(matches):
-	html_entities = {
-		'quot':'\"', 'amp':'&', 'apos':'\'', 'lt':'<', 'gt':'>', 'nbsp':' ', 'copy':'Â©', 'reg':'Â®',
-		'Agrave':'Ã€', 'Aacute':'Ã', 'Acirc':'Ã‚', 'Atilde':'Ãƒ', 'Auml':'Ã„', 'Aring':'Ã…', 'AElig':'Ã†',
-		'Ccedil':'Ã‡', 'Egrave':'Ãˆ', 'Eacute':'Ã‰', 'Ecirc':'ÃŠ', 'Euml':'Ã‹', 'Igrave':'ÃŒ', 'Iacute':'Ã',
-		'Icirc':'ÃŽ', 'Iuml':'Ã', 'ETH':'Ã', 'Ntilde':'Ã‘', 'Ograve':'Ã’', 'Oacute':'Ã“', 'Ocirc':'Ã”',
-		'Otilde':'Ã•', 'Ouml':'Ã–', 'Oslash':'Ã˜', 'Ugrave':'Ã™', 'Uacute':'Ãš', 'Ucirc':'Ã›', 'Uuml':'Ãœ',
-		'Yacute':'Ã', 'agrave':'Ã ', 'aacute':'Ã¡', 'acirc':'Ã¢', 'atilde':'Ã£', 'auml':'Ã¤', 'aring':'Ã¥',
-		'aelig':'Ã¦', 'ccedil':'Ã§', 'egrave':'Ã¨', 'eacute':'Ã©', 'ecirc':'Ãª', 'euml':'Ã«', 'igrave':'Ã¬',
-		'iacute':'Ã­', 'icirc':'Ã®', 'iuml':'Ã¯', 'eth':'Ã°', 'ntilde':'Ã±', 'ograve':'Ã²', 'oacute':'Ã³',
-		'ocirc':'Ã´', 'otilde':'Ãµ', 'ouml':'Ã¶', 'oslash':'Ã¸', 'ugrave':'Ã¹', 'uacute':'Ãº', 'ucirc':'Ã»',
-		'uuml':'Ã¼', 'yacute':'Ã½', 'yuml':'Ã¿'
-	}
+        html_entities = {
+                'quot':'\"', 'amp':'&', 'apos':'\'', 'lt':'<', 'gt':'>', 'nbsp':' ', 'copy':'©', 'reg':'®',
+                'Agrave':'À', 'Aacute':'Á', 'Acirc':'Â', 'Atilde':'Ã', 'Auml':'Ä', 'Aring':'Å', 'AElig':'Æ',
+                'Ccedil':'Ç', 'Egrave':'È', 'Eacute':'É', 'Ecirc':'Ê', 'Euml':'Ë', 'Igrave':'Ì', 'Iacute':'Í',
+                'Icirc':'Î', 'Iuml':'Ï', 'ETH':'Ð', 'Ntilde':'Ñ', 'Ograve':'Ò', 'Oacute':'Ó', 'Ocirc':'Ô',
+                'Otilde':'Õ', 'Ouml':'Ö', 'Oslash':'Ø', 'Ugrave':'Ù', 'Uacute':'Ú', 'Ucirc':'Û', 'Uuml':'Ü',
+                'Yacute':'Ý', 'agrave':'à', 'aacute':'á', 'acirc':'â', 'atilde':'ã', 'auml':'ä', 'aring':'å',
+                'aelig':'æ', 'ccedil':'ç', 'egrave':'è', 'eacute':'é', 'ecirc':'ê', 'euml':'ë', 'igrave':'ì',
+                'iacute':'í', 'icirc':'î', 'iuml':'ï', 'eth':'ð', 'ntilde':'ñ', 'ograve':'ò', 'oacute':'ó',
+                'ocirc':'ô', 'otilde':'õ', 'ouml':'ö', 'oslash':'ø', 'ugrave':'ù', 'uacute':'ú', 'ucirc':'û',
+                'uuml':'ü', 'yacute':'ý', 'yuml':'ÿ'
+        }
 
-	entity = matches.group(0)
-	val = matches.group(1)
+        entity = matches.group(0)
+        val = matches.group(1)
 
-	try:
-		if entity[:2] == '\u':
-			return entity.decode('unicode-escape')
-		elif entity[:3] == '&#x':
-			return unichr(int(val, 16))
-		elif entity[:2] == '&#':
-			return unichr(int(val))
-		else:
-			return html_entities[val].decode('utf-8')
+        try:
+                if entity[:2] == '\u':
+                        return entity.decode('unicode-escape')
+                elif entity[:3] == '&#x':
+                        return unichr(int(val, 16))
+                elif entity[:2] == '&#':
+                        return unichr(int(val))
+                else:
+                        return html_entities[val].decode('utf-8')
 
-	except (ValueError, KeyError):
-		pass
+        except (ValueError, KeyError):
+                pass
 
 def HTMLUnescape(data):
-	data = data.decode('utf-8')
-	data = re.sub('&#?x?(\w+);|\\\\u\d{4}', unescape_callback, data)
-	data = data.encode('utf-8')
+        data = data.decode('utf-8')
+        data = re.sub('&#?x?(\w+);|\\\\u\d{4}', unescape_callback, data)
+        data = data.encode('utf-8')
 
-	return data
+        return data
 
 def rechercherUnElement(argument, rechercherDans):
         reponse = re.compile(argument, re.DOTALL).search(rechercherDans)
@@ -107,14 +107,14 @@ def creerMenuCategories():
                         addDir(nomCat,urlAZ,1,'',numberCat,0)
         addDir('Tous les genres',urlAZ,1,'','0',0)
         addDir('Documentaires',urlAZ,1,'','1',0)
-	addDir('Famille',urlAZ,1,'','2',0)
-	addDir('Films',urlAZ,1,'','3',0)
-	addDir('Jeunesse - grands',urlAZ,1,'','4',0)
-	addDir('Jeunesse - plus grands',urlAZ,1,'','5',0)
-	addDir('Jeunesse - tout-petits',urlAZ,1,'','6',0)
-	addDir('Magazine',urlAZ,1,'','7',0)
-	addDir('S%C3%A9ries de fiction',urlAZ,1,'','9',0)
-	addDir('Vari%C3%A9t%C3%A9s',urlAZ,1,'','10',0)
+        addDir('Famille',urlAZ,1,'','2',0)
+        addDir('Films',urlAZ,1,'','3',0)
+        addDir('Jeunesse - grands',urlAZ,1,'','4',0)
+        addDir('Jeunesse - plus grands',urlAZ,1,'','5',0)
+        addDir('Jeunesse - tout-petits',urlAZ,1,'','6',0)
+        addDir('Magazine',urlAZ,1,'','7',0)
+        addDir('S%C3%A9ries de fiction',urlAZ,1,'','9',0)
+        addDir('Vari%C3%A9t%C3%A9s',urlAZ,1,'','10',0)
         addDir('- Populaires -',TELEQUEBEC_BASE_URL+'/populaires/',2,'','0',1)
         addDir('- Dossiers -',TELEQUEBEC_BASE_URL+'/dossiers/',6,'','0',1)
         addDir('- R%C3%A9cents -',TELEQUEBEC_BASE_URL,2,'','0',1)
@@ -127,18 +127,18 @@ def creerListeFiltree(categorieVoulue,url):
                         addEmission(titre,TELEQUEBEC_BASE_URL+lien,elementsInformations[0],elementsInformations[1])
 
 def creerDossiers(url):
-		link = getURLtxt(url)
-		container = re.split('<div class="listItem floatContainer">',link)
-		liste = re.split('<div class="item"',container[1])
-		for item in liste:
-			sub2 = re.compile('<div class="info">(.+?)</div>',re.DOTALL).findall(item)
-			if len(sub2)>0:
-				sub2=sub2[0]
-				urlDossier = rechercherUnElement('href="(.+?)">',sub2)
-				nomDossier = rechercherUnElement('<a(?:.+?)>(.+?)</a>',sub2)
-				icon = rechercherUnElement('src="(.+?)"',item)
-				#infos = trouverInfosEpisode(TELEQUEBEC_BASE_URL+urlEpisode)
-				addEmission(nomDossier,TELEQUEBEC_BASE_URL+urlDossier,icon,'')
+                link = getURLtxt(url)
+                container = re.split('<div class="listItem floatContainer">',link)
+                liste = re.split('<div class="item"',container[1])
+                for item in liste:
+                        sub2 = re.compile('<div class="info">(.+?)</div>',re.DOTALL).findall(item)
+                        if len(sub2)>0:
+                                sub2=sub2[0]
+                                urlDossier = rechercherUnElement('href="(.+?)">',sub2)
+                                nomDossier = rechercherUnElement('<a(?:.+?)>(.+?)</a>',sub2)
+                                icon = rechercherUnElement('src="(.+?)"',item)
+                                #infos = trouverInfosEpisode(TELEQUEBEC_BASE_URL+urlEpisode)
+                                addEmission(nomDossier,TELEQUEBEC_BASE_URL+urlDossier,icon,'')
 
 def creerListeVideos(url):
        link = getURLtxt(url)
@@ -173,7 +173,7 @@ def creerListeEpisodes(url,saison,nomComplet):
         if len(containerSaison)<saison:
                 debugPrint('Probleme de scraper de saisons')
         else:
-		 containerSaisonStr = ''.join(containerSaison)
+                 containerSaisonStr = ''.join(containerSaison)
                  liste = re.split('<div class="item',containerSaisonStr)
                  for item in liste:
                         sub2 = re.compile('<div class="info">(.+?)</div>',re.DOTALL).findall(item)
@@ -202,18 +202,18 @@ def trouverInfosEpisode(url):
 def JOUERVIDEO(url,name,url_info):
         link = getURLtxt(url)
 
-        #Obtenir mediaUID pure de l'Ã©mission
+        #Obtenir mediaUID pure de l'émission
         mediaUID = rechercherUnElement('mediaUID: \'Limelight_(.+?)\'',link)
 
         #Obtenir JSON avec liens RTMP du playlistService
         link = getURLtxt('http://production.ps.delve.cust.lldns.net/r/PlaylistService/media/%s/getPlaylistByMediaId' % mediaUID)
         videoJSON = simplejson.loads(link)
 
-        #Preparer list de videos Ã  jouer
+        #Preparer list de videos à jouer
         playlist = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
         playlist.clear()
 
-        #Analyser chaque stream disponible pour trouver la meilleure qualitÃ©
+        #Analyser chaque stream disponible pour trouver la meilleure qualité
         for playlistItem in videoJSON['playlistItems']:
             highestBitRate = 0
             streamURL = None
@@ -223,11 +223,11 @@ def JOUERVIDEO(url,name,url_info):
                     streamURL = stream['url']
 
             if streamURL:
-                #SÃ©parer le lien en RTMP et PLAYPATH
+                #Séparer le lien en RTMP et PLAYPATH
                 rtmpUrl = streamURL[:streamURL.find('mp4')]
                 playPath = streamURL[streamURL.find('mp4'):]
 
-                #GÃ©nÃ©rer un lien compatible pour librtmp
+                #Générer un lien compatible pour librtmp
                 swfUrl = 'http://s.delvenetworks.com/deployments/flash-player/flash-player-5.10.1.swf?playerForm=Chromeless'
                 url = '%s playPath=%s swfUrl=%s swfVfy=true' % (rtmpUrl, playPath, swfUrl)
 
