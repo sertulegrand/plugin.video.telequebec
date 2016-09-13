@@ -12,7 +12,6 @@
 
 import sys,urllib, xbmcgui, xbmcplugin, xbmcaddon,re,cache, simplejson, xbmc
 
-show = logDict.show
 ADDON = xbmcaddon.Addon()
 ADDON_IMAGES_BASEPATH = ADDON.getAddonInfo('path')+'/resources/media/images/'
 ADDON_FANART = ADDON.getAddonInfo('path')+'/fanart.jpg'
