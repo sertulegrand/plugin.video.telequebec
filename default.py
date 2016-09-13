@@ -1,372 +1,131 @@
 # -*- coding: cp1252 -*-
-import urllib,urllib2,re,xbmcplugin,xbmcaddon,xbmcgui,xbmc,simplejson
 
-# version 2.6
-#By CB
+""" -*- coding: utf-8 -*- """
+# version 3.0.0 - By CB
+# version 2.0.2 - By SlySen
+# version 0.2.6 - By CB
+#
+# pylint...: --max-line-length 120
+# vim......: set expandtab
+# vim......: set tabstop=4
+#
+import os, urllib, sys, traceback, xbmcplugin, xbmcaddon, xbmc, simplejson, xbmcgui
 
-TELEQUEBEC_BASE_URL = 'http://zonevideo.telequebec.tv'
+import  content, parse, navig
 
-#Merci à l'auteur de cette fonction
-def unescape_callback(matches):
-        html_entities = {
-                'quot':'\"', 'amp':'&', 'apos':'\'', 'lt':'<', 'gt':'>', 'nbsp':' ', 'copy':'©', 'reg':'®',
-                'Agrave':'À', 'Aacute':'Á', 'Acirc':'Â', 'Atilde':'Ã', 'Auml':'Ä', 'Aring':'Å', 'AElig':'Æ',
-                'Ccedil':'Ç', 'Egrave':'È', 'Eacute':'É', 'Ecirc':'Ê', 'Euml':'Ë', 'Igrave':'Ì', 'Iacute':'Í',
-                'Icirc':'Î', 'Iuml':'Ï', 'ETH':'Ð', 'Ntilde':'Ñ', 'Ograve':'Ò', 'Oacute':'Ó', 'Ocirc':'Ô',
-                'Otilde':'Õ', 'Ouml':'Ö', 'Oslash':'Ø', 'Ugrave':'Ù', 'Uacute':'Ú', 'Ucirc':'Û', 'Uuml':'Ü',
-                'Yacute':'Ý', 'agrave':'à', 'aacute':'á', 'acirc':'â', 'atilde':'ã', 'auml':'ä', 'aring':'å',
-                'aelig':'æ', 'ccedil':'ç', 'egrave':'è', 'eacute':'é', 'ecirc':'ê', 'euml':'ë', 'igrave':'ì',
-                'iacute':'í', 'icirc':'î', 'iuml':'ï', 'eth':'ð', 'ntilde':'ñ', 'ograve':'ò', 'oacute':'ó',
-                'ocirc':'ô', 'otilde':'õ', 'ouml':'ö', 'oslash':'ø', 'ugrave':'ù', 'uacute':'ú', 'ucirc':'û',
-                'uuml':'ü', 'yacute':'ý', 'yuml':'ÿ'
-        }
+from collections import OrderedDict
 
-        entity = matches.group(0)
-        val = matches.group(1)
+def peupler():
+    if filtres['content']['mediaBundleId']>0:
+        creer_liste_videos()
+    elif filtres['content']['genreId']!='':
+        creer_liste_filtree()
+    else:
+        creer_menu_categories()
 
-        try:
-                if entity[:2] == '\u':
-                        return entity.decode('unicode-escape')
-                elif entity[:3] == '&#x':
-                        return unichr(int(val, 16))
-                elif entity[:2] == '&#':
-                        return unichr(int(val))
-                else:
-                        return html_entities[val].decode('utf-8')
+def creer_menu_categories():
+    """ function docstring """
 
-        except (ValueError, KeyError):
-                pass
+    navig.ajouterItemAuMenu(content.dictOfGenres(filtres))
+    navig.ajouterItemAuMenu(content.dictOfMainDirs(filtres))
 
-def HTMLUnescape(data):
-        data = data.decode('utf-8')
-        data = re.sub('&#?x?(\w+);|\\\\u\d{4}', unescape_callback, data)
-        data = data.encode('utf-8')
+def creer_liste_filtree():
+    """ function docstring """
 
-        return data
+    navig.ajouterItemAuMenu(parse.get_liste_emissions(filtres))
+        
 
-def rechercherUnElement(argument, rechercherDans):
-        reponse = re.compile(argument, re.DOTALL).search(rechercherDans)
-        if(reponse):
-                return reponse.group(1)
-        else:
-                return ""
-
-def getURLtxt(url):
-        req = urllib2.Request(url)
-        req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:19.0) Gecko/20100101 Firefox/19.0')
-        req.add_header('Accept-Charset', 'utf-8')
-        response = urllib2.urlopen(req)
-        link=response.read()
-        link = HTMLUnescape(link)
-        response.close()
-        return link
-
-def getBlock(url):
-        link = getURLtxt(url)
-        main = rechercherUnElement('content azsContainer index(.+?)<footer>',link)
-        return main
-def getCategories(url):
-        main = getBlock(url)
-        match=re.compile('<option value="(.+?)">(.+?)</option>',re.DOTALL).findall(main)
-        return match
-
-def getListeEmissions(url):
-        main = getBlock(url)
-        match=re.compile('<li data-genre="(.+?)"><a href="(.+?)">(.+?)</a></li>',re.DOTALL).findall(main)
-        return match
-
-def comparerCategorie(categorieVoulue, listeCategorie):
-        if categorieVoulue == '0' : return 1
-        match=re.split(';',listeCategorie)
-        for catListee in match:
-                if catListee==categorieVoulue:
-                        return 1
-        return 0
-
-def trouverInfosEmission(url):
-       link = getURLtxt(url)
-
-       main = rechercherUnElement('<article class="emission">(.+?)</article>',link)
-
-       sub= rechercherUnElement('class="emissionHeader"(.+?)</div>',main)
-
-       icon = rechercherUnElement('img src="(.+?)"',sub)
-
-       sub2= rechercherUnElement('class="emissionInfo"(.+?)</div>',main)
-
-       resume = rechercherUnElement('<p>(.+?)</p>',sub2)
-
-       return [icon,resume]
-
-
-def creerMenuCategories():
-        urlAZ = TELEQUEBEC_BASE_URL+'/a-z/'
-        nomCategories = getCategories(urlAZ)
-        for numberCat,nomCat in nomCategories:
-                if numberCat<>'All':
-                        addDir(nomCat,urlAZ,1,'',numberCat,0)
-        addDir('Tous les genres',urlAZ,1,'','0',0)
-        addDir('Documentaires',urlAZ,1,'','1',0)
-        addDir('Famille',urlAZ,1,'','2',0)
-        addDir('Films',urlAZ,1,'','3',0)
-        addDir('Jeunesse - grands',urlAZ,1,'','4',0)
-        addDir('Jeunesse - plus grands',urlAZ,1,'','5',0)
-        addDir('Jeunesse - tout-petits',urlAZ,1,'','6',0)
-        addDir('Magazine',urlAZ,1,'','7',0)
-        addDir('S%C3%A9ries de fiction',urlAZ,1,'','9',0)
-        addDir('Vari%C3%A9t%C3%A9s',urlAZ,1,'','10',0)
-        addDir('- Populaires -',TELEQUEBEC_BASE_URL+'/populaires/',2,'','0',1)
-        addDir('- Dossiers -',TELEQUEBEC_BASE_URL+'/dossiers/',6,'','0',1)
-        addDir('- R%C3%A9cents -',TELEQUEBEC_BASE_URL,2,'','0',1)
-
-def creerListeFiltree(categorieVoulue,url):
-        liste = getListeEmissions(url)
-        for categ,lien,titre in liste:
-                if comparerCategorie(str(categorieVoulue),categ)==1:
-                        elementsInformations = trouverInfosEmission(TELEQUEBEC_BASE_URL+lien)
-                        addEmission(titre,TELEQUEBEC_BASE_URL+lien,elementsInformations[0],elementsInformations[1])
-
-def creerDossiers(url):
-                link = getURLtxt(url)
-                container = re.split('<div class="listItem floatContainer">',link)
-                liste = re.split('<div class="item"',container[1])
-                for item in liste:
-                        sub2 = re.compile('<div class="info">(.+?)</div>',re.DOTALL).findall(item)
-                        if len(sub2)>0:
-                                sub2=sub2[0]
-                                urlDossier = rechercherUnElement('href="(.+?)">',sub2)
-                                nomDossier = rechercherUnElement('<a(?:.+?)>(.+?)</a>',sub2)
-                                icon = rechercherUnElement('src="(.+?)"',item)
-                                #infos = trouverInfosEpisode(TELEQUEBEC_BASE_URL+urlEpisode)
-                                addEmission(nomDossier,TELEQUEBEC_BASE_URL+urlDossier,icon,'')
-
-def creerListeVideos(url):
-       link = getURLtxt(url)
-       nbSaisons=creerListeSaisons(link)
-       nbSaisons=creerListeSupplement(link,nbSaisons)
-
-
-def creerListeSaisons(link):
-       nbSaisons = 0
-       sub = rechercherUnElement('<ul class="menu(.+?)</ul>',link)
-       match = re.compile('<li(.+?)</li>',re.DOTALL).findall(sub)
-       for saisonTxt in match:
-               nbSaisons = nbSaisons+1
-               nomSaison = rechercherUnElement('<a.*?><span class="icon"></span>(.+?)</a>',saisonTxt)
-               addDirSaison(nomSaison,url,'',nbSaisons)
-       if nbSaisons==0:
-               creerListeEpisodes(url,1,fullName)
-       return nbSaisons
-
-
-def creerListeSupplement(link,nbSaisons):
-        main = re.compile('class="extrasEmission"(.+?)</section>',re.DOTALL).findall(link)
-        for extra in main:
-                nbSaisons = nbSaisons+1
-                titre = rechercherUnElement('<h2.*?<span>(.+?)</span>',link)
-                addDirSaison(titre,url,'',nbSaisons)
-        return nbSaisons
-
-def creerListeEpisodes(url,saison,nomComplet):
-        link = getURLtxt(url)
-        containerSaison = re.split('<div class="listItem floatContainer">',link)
-        if len(containerSaison)<saison:
-                debugPrint('Probleme de scraper de saisons')
-        else:
-                 containerSaisonStr = ''.join(containerSaison)
-                 liste = re.split('<div class="item',containerSaisonStr)
-                 for item in liste:
-                        sub2 = re.compile('<div class="info">(.+?)</div>',re.DOTALL).findall(item)
-                        if len(sub2)>0:
-                                sub2=sub2[0]
-                                urlEpisode = rechercherUnElement('href="(.+?)">',sub2)
-                                nomEmission = rechercherUnElement('<p(?:.+?)>(.+?)</p>',sub2)
-                                nomEpisode = rechercherUnElement('<a(?:.+?)>(.+?)</a>',sub2)
-                                icon = rechercherUnElement('src="(.+?)"',item)
-                                dureeBlock = rechercherUnElement('"infoSaison"(.+?)</p>',item)
-                                duree = rechercherUnElement('(..:..)',dureeBlock)
-                                #duree = (str(int(duree[0])*60+int(duree[1])))
-                                #infos = trouverInfosEpisode(TELEQUEBEC_BASE_URL+urlEpisode)
-                                if (nomComplet==1):
-                                       addLink(nomEmission+' : '+nomEpisode,TELEQUEBEC_BASE_URL+urlEpisode,icon,'','',duree)
-                                else:
-                                       addLink(nomEpisode,TELEQUEBEC_BASE_URL+urlEpisode,icon,'','',duree)
-
-def trouverInfosEpisode(url):
-       link = getURLtxt(url)
-       icon = rechercherUnElement('<meta itemprop="image" content="(.+?)">',link)
-       description = rechercherUnElement('<meta name="description" content="(.+?)>',link)
-
-       return [icon,description]
-
-def JOUERVIDEO(url,name,url_info):
-        link = getURLtxt(url)
-
-        #Obtenir mediaUID pure de l'émission
-        mediaUID = rechercherUnElement('mediaUID: \'Limelight_(.+?)\'',link)
-
-        #Obtenir JSON avec liens RTMP du playlistService
-        link = getURLtxt('http://production.ps.delve.cust.lldns.net/r/PlaylistService/media/%s/getPlaylistByMediaId' % mediaUID)
-        videoJSON = simplejson.loads(link)
-
-        #Preparer list de videos à jouer
-        playlist = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
-        playlist.clear()
-
-        #Analyser chaque stream disponible pour trouver la meilleure qualité
-        for playlistItem in videoJSON['playlistItems']:
-            highestBitRate = 0
-            streamURL = None
-            for stream in playlistItem['streams']:
-                if stream['videoBitRate'] > highestBitRate:
-                    highestBitRate = stream['videoBitRate']
-                    streamURL = stream['url']
-
-            if streamURL:
-                #Séparer le lien en RTMP et PLAYPATH
-                rtmpUrl = streamURL[:streamURL.find('mp4')]
-                playPath = streamURL[streamURL.find('mp4'):]
-
-                #Générer un lien compatible pour librtmp
-                swfUrl = 'http://s.delvenetworks.com/deployments/flash-player/flash-player-5.10.1.swf?playerForm=Chromeless'
-                url = '%s playPath=%s swfUrl=%s swfVfy=true' % (rtmpUrl, playPath, swfUrl)
-
-                xbmc.log('Starting playback of %s' % url)
-                item = xbmcgui.ListItem(videoJSON['title'],iconImage=videoJSON['imageUrl'],thumbnailImage=videoJSON['imageUrl'])
-                playlist.add(url, item)
-            else:
-                xbmc.executebuiltin('Notification(%s,Incapable d''obtenir lien du video,5000,%s' % (xbmcaddon.Addon().getAddonInfo('name'), xbmcaddon.Addon().getAddonInfo('icon')))
-
-        if playlist.size() > 0:
-            xbmc.Player(xbmc.PLAYER_CORE_DVDPLAYER).play(playlist)
-
+def creer_liste_videos():
+    """ function docstring """
+    navig.ajouterItemAuMenu(parse.ListeVideosGroupees(filtres))
 
 def get_params():
-        param=[]
-        paramstring=sys.argv[2]
-        if len(paramstring)>=2:
-                params=sys.argv[2]
-                cleanedparams=params.replace('?','')
-                if (params[len(params)-1]=='/'):
-                        params=params[0:len(params)-2]
-                pairsofparams=cleanedparams.split('&')
-                param={}
-                for i in range(len(pairsofparams)):
-                        splitparams={}
-                        splitparams=pairsofparams[i].split('=')
-                        if (len(splitparams))==2:
-                                param[splitparams[0]]=splitparams[1]
+    """ function docstring """
+    param = []
+    paramstring = sys.argv[2]
+    if len(paramstring) >= 2:
+        params = sys.argv[2]
+        cleanedparams = params.replace('?', '')
+        if params[len(params)-1] == '/':
+            params = params[0:len(params)-2]
+        pairsofparams = cleanedparams.split('&')
+        param = {}
+        for k in range(len(pairsofparams)):
+            splitparams = {}
+            splitparams = pairsofparams[k].split('=')
+            if (len(splitparams)) == 2:
+                param[splitparams[0]] = splitparams[1]
 
-        return param
+    return param
 
-def addDir(name,url,mode,iconimage,categorie,nomComplet):
-        name=name
-        u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&categorie="+str(categorie)+"&fullName="+urllib.quote_plus(str(nomComplet))
-        ok=True
-        liz=xbmcgui.ListItem(urllib.unquote(name), iconImage="DefaultFolder.png", thumbnailImage=iconimage)
-        liz.setInfo( type="Video", infoLabels={ "Title": urllib.unquote(name) } )
-        ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
-        return ok
+def set_content(content):
+    """ function docstring """
+    xbmcplugin.setContent(int(sys.argv[1]), content)
+    return
 
-def addEmission(name,url,iconimage,plot):
-        prochainMode = 2
-        u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(prochainMode)+"&name="+urllib.quote_plus(name)+"&fullName="+urllib.quote_plus(str(fullName))
-        ok=True
-        liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
-        liz.setInfo( type="Video", infoLabels={ "Title": urllib.unquote(name),"Plot":plot } )
-        ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
-        return ok
+def set_sorting_methods(mode):
+    pass
+    #if xbmcaddon.Addon().getSetting('SortMethodTvShow') == '1':
+    #    xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_TITLE)
+    #    xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_TITLE_IGNORE_THE)
+    #return
 
-def addDirSaison(name,url,iconimage,saison):
-        prochainMode = 3
-        u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(prochainMode)+"&name="+urllib.quote_plus(name)+"&season="+str(saison)+"&fullName="+urllib.quote_plus(str(fullName))
-        ok=True
-        liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
-        liz.setInfo( type="Video", infoLabels={ "Title": urllib.unquote(name),"Plot":name } )
-        ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
-        return ok
+def log(msg):
+    """ function docstring """
+    if xbmcaddon.Addon().getSetting('DebugMode') == 'true':
+        xbmc.log('[%s - DEBUG]: %s' % (xbmcaddon.Addon().getAddonInfo('name'), msg))
 
-def addLink(name,url,iconimage,url_info,plot,duree):
-        ok=True
-        u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode=4&name="+urllib.quote_plus(name)+"&Info="+urllib.quote_plus(url_info)
-        liz=xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)
-        liz.setInfo( type="Video", infoLabels={ "Title": urllib.quote_plus(name),"Plot":plot,"Duration":duree } )
-        ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=False)
-        return ok
+# ---
+log('--- init -----------------')
+# ---
 
-def debugPrint(texte):
-        u=sys.argv[0]+"?url="+urllib.quote_plus(TELEQUEBEC_BASE_URL)+"&mode="+str(0)+"&name="+urllib.quote_plus(texte)
-        ok=True
-        liz=xbmcgui.ListItem(texte, iconImage="DefaultFolder.png", thumbnailImage='')
-        liz.setInfo( type="Video", infoLabels={ "Title": texte } )
-        ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
-        return ok
+PARAMS = get_params()
 
-
-params=get_params()
-url=None
-name=None
-mode=None
-url_info=None
-categorie=None
-season=0
-fullName=0
+URL = None
+MODE = None
+SOURCE_ID = ''
+FILTERS = ''
+filtres = {}
 
 try:
-        url=urllib.unquote_plus(params["url"])
-except:
-        pass
+    URL = urllib.unquote_plus(PARAMS["url"])
+    log("PARAMS['url']:"+URL)
+except StandardError:
+    pass
 try:
-        name=urllib.unquote_plus(params["name"])
-except:
-        pass
+    MODE = int(PARAMS["mode"])
+    log("PARAMS['mode']:"+str(MODE))
+except StandardError:
+    pass
 try:
-        mode=int(params["mode"])
-except:
-        pass
+    FILTERS = urllib.unquote_plus(PARAMS["filters"])
+except StandardError:
+    FILTERS = content.FILTRES
 try:
-        categorie=int(params["categorie"])
-except:
-        pass
-try:
-        url_info=int(params["Info"])
-except:
-        pass
-try:
-        season=int(params["season"])
-except:
-        pass
-try:
-        fullName=int(params["fullName"])
-except:
-        pass
-#print "Mode: "+str(mode)
-print "URL: "+str(url)
-print "Name: "+str(name)
+    SOURCE_ID = urllib.unquote_plus(PARAMS["sourceId"])
+except StandardError:
+    pass
 
-if mode==None or url==None or len(url)<1:
-        #print ""
-        creerMenuCategories()
+filtres = simplejson.loads(FILTERS, object_pairs_hook=OrderedDict)
+   
+if SOURCE_ID !='':
+    navig.jouer_video(SOURCE_ID)
 
-elif mode==1:
-        #print ""+url
-        creerListeFiltree(categorie,url)
+elif MODE == 99:
+    ADDON.openSettings()
+    
+else:
+    peupler()
+    set_content('episodes')
 
-elif mode==2:
-        #print ""+url
-        creerListeVideos(url)
 
-elif mode==3:
-        #print ""+url
-        creerListeEpisodes(url,season,fullName)
+if MODE is not 99:
+    set_sorting_methods(MODE)
+    xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
-elif mode==4:
-        #print ""+url
-        #print ""+url_info
-        JOUERVIDEO(url,name,url_info)
-
-elif mode==6:
-        #print ""+url
-        creerDossiers(url)
-
-xbmcplugin.endOfDirectory(int(sys.argv[1]))
+if MODE is not 4 and xbmcaddon.Addon().getSetting('DeleteTempFiFilesEnabled') == 'true':
+    PATH = xbmc.translatePath('special://temp')
+    FILENAMES = next(os.walk(PATH))[2]
+    for i in FILENAMES:
+        if ".fi" in i:
+            os.remove(os.path.join(PATH, i))
