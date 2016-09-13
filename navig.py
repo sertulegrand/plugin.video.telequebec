@@ -144,11 +144,11 @@ def jouer_video(media_uid):
         )\
     )
     
-    # Preparer list de videos Ã  jouer
+    # Preparer list de videos à jouer
     playlist = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
     playlist.clear()
 
-    # Analyser chaque stream disponible pour trouver la meilleure qualitÃ©
+    # Analyser chaque stream disponible pour trouver la meilleure qualité
     #for play_list_item in video_json['playlistItems']:
     play_list_item =video_json['playlistItems'][0]
     
@@ -159,7 +159,7 @@ def jouer_video(media_uid):
             highest_bit_rate = stream['videoBitRate']
             stream_url = stream['url']
     if stream_url:
-        # GÃ©nÃ©rer un lien compatible pour librtmp
+        # Générer un lien compatible pour librtmp
         # rtmp_url - play_path - swf_url
         url_final = '%s playPath=%s swfUrl=%s swfVfy=true' % (\
             stream_url[:stream_url.find('mp4')],\
