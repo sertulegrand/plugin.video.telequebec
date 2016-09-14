@@ -1,3 +1,6 @@
+[B]3.0.1 | CB | 2016-09-14[/B] 
+- Retrait de la dépendance à OrderedDict
+
 [B]3.0.0 | CB | 2016-09-05[/B] 
 - Refactorisation en profondeur de tout le code (séparation en module)
 - Nouveau scraper du contenu utilisant l'API de TQ
