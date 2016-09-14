@@ -13,7 +13,7 @@ import os, urllib, sys, traceback, xbmcplugin, xbmcaddon, xbmc, simplejson, xbmc
 
 import  content, parse, navig
 
-from collections import OrderedDict
+#from collections import OrderedDict
 
 def peupler():
     if filtres['content']['mediaBundleId']>0:
@@ -106,7 +106,7 @@ try:
 except StandardError:
     pass
 
-filtres = simplejson.loads(FILTERS, object_pairs_hook=OrderedDict)
+filtres = simplejson.loads(FILTERS)
    
 if SOURCE_ID !='':
     navig.jouer_video(SOURCE_ID)
