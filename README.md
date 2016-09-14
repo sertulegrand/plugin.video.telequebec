@@ -1,5 +1,5 @@
 # xbmc-kodi-Tele-Quebec
 Plug-in Kodi pour visionner le contenu de Télé-Québec.tv
-Version 3.0.0 - Par CB
+Version 3.0.1 - Par CB
 
-Pour un téléchargement de la version 3.0.0 : bouton Clone or download > Download zip
+Pour un téléchargement de la version 3.0.1 : bouton Clone or download > Download zip
