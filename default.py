@@ -11,7 +11,7 @@
 #
 import os, urllib, sys, traceback, xbmcplugin, xbmcaddon, xbmc, simplejson, xbmcgui
 
-import  content, parse, navig
+from resources.lib import content, parse, navig
 
 #from collections import OrderedDict
 

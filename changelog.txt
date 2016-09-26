@@ -1,3 +1,8 @@
+﻿[B]3.0.2 | CB | 2016-09-20[/B] 
+- Épurage de l'URL (correction mineures lors de caractères non reconnus)
+- fanart.jpg
+- Déplacement des fichiers dans resources/lib/
+
 [B]3.0.1 | CB | 2016-09-14[/B] 
 - Retrait de la dépendance à OrderedDict
 
