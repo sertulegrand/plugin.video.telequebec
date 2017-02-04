@@ -1,6 +1,5 @@
-# -*- coding: cp1252 -*-
+# -*- coding: utf-8 -*-
 
-""" -*- coding: utf-8 -*- """
 # version 3.0.0 - By CB
 # version 2.0.2 - By SlySen
 # version 0.2.6 - By CB

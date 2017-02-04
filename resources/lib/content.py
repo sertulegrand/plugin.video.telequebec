@@ -1,6 +1,5 @@
-# -*- coding: cp1252 -*-
+# -*- coding: utf-8 -*-
 
-""" -*- coding: utf-8 -*- """
 # version 3.0.0 - By CB
 
 import urllib2, simplejson, parse, cache, re, xbmcaddon

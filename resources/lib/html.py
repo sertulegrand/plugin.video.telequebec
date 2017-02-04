@@ -1,40 +1,41 @@
-# -*- coding: cp1252 -*-
+# -*- coding: utf-8 -*-
 
-""" -*- coding: utf-8 -*- """
 # version 3.0.0 - By CB
 # version 2.0.2 - By SlySen
 # version 0.2.6 - By CB
 
-import urllib2,re, socket
+import re
+import socket
+import urllib2
 
 
-# Merci ‡ l'auteur de cette fonction
+# Merci √† l'auteur de cette fonction
 def unescape_callback(matches):
     """ function docstring """
-    html_entities =\
+    html_entities = \
     {
         'quot':'\"', 'amp':'&', 'apos':'\'', 'lt':'<',
-        'gt':'>', 'nbsp':' ', 'copy':'©', 'reg':'Æ',
-        'Agrave':'¿', 'Aacute':'¡', 'Acirc':'¬',
-        'Atilde':'√', 'Auml':'ƒ', 'Aring':'≈',
-        'AElig':'∆', 'Ccedil':'«', 'Egrave':'»',
-        'Eacute':'…', 'Ecirc':' ', 'Euml':'À',
-        'Igrave':'Ã', 'Iacute':'Õ', 'Icirc':'Œ',
-        'Iuml':'œ', 'ETH':'–', 'Ntilde':'—',
-        'Ograve':'“', 'Oacute':'”', 'Ocirc':'‘',
-        'Otilde':'’', 'Ouml':'÷', 'Oslash':'ÿ',
-        'Ugrave':'Ÿ', 'Uacute':'⁄', 'Ucirc':'€',
-        'Uuml':'‹', 'Yacute':'›', 'agrave':'‡',
-        'aacute':'·', 'acirc':'‚', 'atilde':'„',
-        'auml':'‰', 'aring':'Â', 'aelig':'Ê',
-        'ccedil':'Á', 'egrave':'Ë', 'eacute':'È',
-        'ecirc':'Í', 'euml':'Î', 'igrave':'Ï',
-        'iacute':'Ì', 'icirc':'Ó', 'iuml':'Ô',
-        'eth':'', 'ntilde':'Ò', 'ograve':'Ú',
-        'oacute':'Û', 'ocirc':'Ù', 'otilde':'ı',
-        'ouml':'ˆ', 'oslash':'¯', 'ugrave':'˘',
-        'uacute':'˙', 'ucirc':'˚', 'uuml':'¸',
-        'yacute':'˝', 'yuml':'ˇ'
+        'gt':'>', 'nbsp':' ', 'copy':'¬©', 'reg':'¬Æ',
+        'Agrave':'√Ä', 'Aacute':'√Å', 'Acirc':'√Ç',
+        'Atilde':'√É', 'Auml':'√Ñ', 'Aring':'√Ö',
+        'AElig':'√Ü', 'Ccedil':'√á', 'Egrave':'√à',
+        'Eacute':'√â', 'Ecirc':'√ä', 'Euml':'√ã',
+        'Igrave':'√å', 'Iacute':'√ç', 'Icirc':'√é',
+        'Iuml':'√è', 'ETH':'√ê', 'Ntilde':'√ë',
+        'Ograve':'√í', 'Oacute':'√ì', 'Ocirc':'√î',
+        'Otilde':'√ï', 'Ouml':'√ñ', 'Oslash':'√ò',
+        'Ugrave':'√ô', 'Uacute':'√ö', 'Ucirc':'√õ',
+        'Uuml':'√ú', 'Yacute':'√ù', 'agrave':'√†',
+        'aacute':'√°', 'acirc':'√¢', 'atilde':'√£',
+        'auml':'√§', 'aring':'√•', 'aelig':'√¶',
+        'ccedil':'√ß', 'egrave':'√®', 'eacute':'√©',
+        'ecirc':'√™', 'euml':'√´', 'igrave':'√¨',
+        'iacute':'√≠', 'icirc':'√Æ', 'iuml':'√Ø',
+        'eth':'√∞', 'ntilde':'√±', 'ograve':'√≤',
+        'oacute':'√≥', 'ocirc':'√¥', 'otilde':'√µ',
+        'ouml':'√∂', 'oslash':'√∏', 'ugrave':'√π',
+        'uacute':'√∫', 'ucirc':'√ª', 'uuml':'√º',
+        'yacute':'√Ω', 'yuml':'√ø'
     }
 
     entity = matches.group(0)
@@ -64,9 +65,9 @@ def get_url_txt(the_url):
     """ function docstring """
     req = urllib2.Request(the_url)
     req.add_header(\
-        'User-Agent',\
-        'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:19.0) Gecko/20100101 Firefox/19.0'\
-    )
+                   'User-Agent', \
+                   'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:19.0) Gecko/20100101 Firefox/19.0'\
+                   )
     req.add_header('Accept-Charset', 'utf-8')
     response = urllib2.urlopen(req)
     link = response.read()
