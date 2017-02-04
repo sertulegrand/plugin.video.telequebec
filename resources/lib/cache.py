@@ -1,6 +1,5 @@
-# -*- coding: cp1252 -*-
+# -*- coding: utf-8 -*-
 
-""" -*- coding: utf-8 -*- """
 # version 3.0.0 - By CB
 # version 2.0.2 - By SlySen
 # version 0.2.6 - By CB
@@ -9,7 +8,7 @@ import xbmcaddon, os, xbmc, time, sys, html
 
 ADDON = xbmcaddon.Addon()
 
-ADDON_CACHE_BASEDIR = os.path.join(xbmc.translatePath(ADDON.getAddonInfo('path')), ".cache")
+ADDON_CACHE_BASEDIR = os.path.join(xbmc.translatePath(ADDON.getAddonInfo('path')).decode('utf-8'), ".cache")
 ADDON_CACHE_TTL = float(ADDON.getSetting('CacheTTL').replace("0", ".5").replace("73", "0"))
 
 if not os.path.exists(ADDON_CACHE_BASEDIR):
@@ -35,7 +34,7 @@ def get_cached_content(path):
         if os.path.exists(filename) and not is_cached_content_expired(os.path.getmtime(filename)):
             content = open(filename).read()
         else:
-            ###CB  ne devrait pas etre utilisé ici, mais en amont
+            ###CB  ne devrait pas etre utilisÃ© ici, mais en amont
             #check_for_internet_connection()
             content = html.get_url_txt(path)
             try:

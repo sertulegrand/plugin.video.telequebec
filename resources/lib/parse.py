@@ -1,5 +1,5 @@
+# -*- coding: utf-8 -*-
 
-#""" -*- coding: utf-8 -*- """
 import copy
 import content
 #from operator import itemgetter
