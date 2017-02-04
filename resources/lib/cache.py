@@ -8,7 +8,7 @@ import xbmcaddon, os, xbmc, time, sys, html
 
 ADDON = xbmcaddon.Addon()
 
-ADDON_CACHE_BASEDIR = os.path.join(xbmc.translatePath(ADDON.getAddonInfo('path')), ".cache")
+ADDON_CACHE_BASEDIR = os.path.join(xbmc.translatePath(ADDON.getAddonInfo('path')).decode('utf-8'), ".cache")
 ADDON_CACHE_TTL = float(ADDON.getSetting('CacheTTL').replace("0", ".5").replace("73", "0"))
 
 if not os.path.exists(ADDON_CACHE_BASEDIR):
