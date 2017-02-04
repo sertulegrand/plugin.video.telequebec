@@ -20,7 +20,7 @@ INTEGRAL = 'Integral'
 def dictOfGenres(filtres):
     liste = [{'genreId': 0, 'nom': 'A %C3%A0 Z - Toutes les cat%C3%A9gories','resume':'Tout le contenu disponible.'}]
     liste.append({'genreId': 1, 'nom': 'Documentaires','resume':'Les documentaires.'})
-    liste.append({'genreId': 2, 'nom': 'Famille', 'resume':'Pour toute la famill.e'})
+    liste.append({'genreId': 2, 'nom': 'Famille', 'resume':'Pour toute la famille.'})
     liste.append({'genreId': 3, 'nom': 'Films','resume':'Les films.'})
     liste.append({'genreId': 6, 'nom': 'Jeunesse - tout-petits','resume':'Pour les petits.'})
     liste.append({'genreId': 4, 'nom': 'Jeunesse - grands','resume':'Pour les plus grands.'})
