@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+# version 3.1.0 - By CB, PLafrance & andreq
 # version 3.0.0 - By CB
 # version 2.0.2 - By SlySen
 # version 0.2.6 - By CB
@@ -138,59 +138,30 @@ def jouer_video(media_uid):
             'http://production.ps.delve.cust.lldns.net/r/PlaylistService/media/%s/getPlaylistByMediaId' % media_uid\
         )\
     )
-    
-    # Preparer list de videos à jouer
-    playlist = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
-    playlist.clear()
 
-    # Analyser chaque stream disponible pour trouver la meilleure qualité
-    #for play_list_item in video_json['playlistItems']:
     play_list_item =video_json['playlistItems'][0]
     
-    highest_bit_rate = 0
-    stream_url = None
-    for stream in play_list_item['streams']:
-        if stream['videoBitRate'] > highest_bit_rate:
-            highest_bit_rate = stream['videoBitRate']
-            stream_url = stream['url']
-    if stream_url:
-        # Générer un lien compatible pour librtmp
-        # rtmp_url - play_path - swf_url
-        url_final = '%s playPath=%s swfUrl=%s swfVfy=true' % (\
-            stream_url[:stream_url.find('mp4')],\
-            stream_url[stream_url.find('mp4'):],\
-            'http://s.delvenetworks.com/deployments/flash-player/flash-player-5.10.1.swf?playerForm=Chromeless'\
-        )
-       # log('Starting playback of :' + urllib.quote_plus(url_final))
+    # Obtient les streams dans un playlist m3u8
+    m3u8_pl=cache.get_cached_content('https://mnmedias.api.telequebec.tv/m3u8/%s.m3u8' % play_list_item['refId'])
+
+    # Cherche le stream de meilleure qualité
+    uri = obtenirMeilleurStream(m3u8_pl)   
+
+    # lance le stream
+    if uri:
         item = xbmcgui.ListItem(\
             video_json['title'],\
             iconImage=video_json['imageUrl'],\
-            thumbnailImage=play_list_item['thumbnailImageUrl'], path=url_final)
-        #playlist.add(url_final, item)
-        play_item = xbmcgui.ListItem(path=url_final)
-        xbmc.log("**************************************DING? " +sys.argv[0])
+            thumbnailImage=play_list_item['thumbnailImageUrl'], path=uri)
+        play_item = xbmcgui.ListItem(path=uri)
         xbmcplugin.setResolvedUrl(__handle__,True, item)
-        xbmc.log("**************************************DONG! ")
     else:
-        xbmc.executebuiltin('Notification(%s,Incapable d''obtenir lien du video,5000,%s' % (ADDON_NAME, ADDON_ICON))
-
-    #if playlist.size() > 0:
-    #    xbmc.Player(xbmc.PLAYER_CORE_DVDPLAYER).play(playlist)
-   
+        xbmc.executebuiltin('Notification(%s,Incapable d''obtenir lien du video,5000,%s')
 
 def check_for_internet_connection():
     """ function docstring """
     if ADDON.getSetting('NetworkDetection') == 'false':
         return
-   #retire cb
-    
-   # if html.is_network_available(parseTQ.BASE_URL) == False:
-   #     xbmcgui.Dialog().ok(\
-   #         ADDON_NAME,\
-   #         ADDON.getLocalizedString(32112),\
-   #         ADDON.getLocalizedString(32113)\
-   #     )
-   #     exit()
     return
 
 def remove_any_html_tags(text, crlf=True):
@@ -200,3 +171,23 @@ def remove_any_html_tags(text, crlf=True):
     if crlf == True:
         text = RE_AFTER_CR.sub('', text)
     return text
+
+def obtenirMeilleurStream(pl):
+    maxBW = 0
+    bandWidth=None
+    uri = None
+    for line in pl.split('\n'):
+        if re.search('#EXT-X',line):
+            bandWidth=None
+            try:
+                match  = re.search('BANDWIDTH=(\d+)',line)
+                bandWidth = int(match.group(1))
+            except :
+                bandWidth=None
+        elif line.startswith('http'):
+            if bandWidth!=None:
+                if bandWidth>maxBW:
+                    maxBW = bandWidth
+                    uri = line
+    return uri
+
