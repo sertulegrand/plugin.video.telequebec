@@ -1,18 +1,11 @@
 # -*- coding: utf-8 -*-
 
-# version 3.0.0 - By CB
-# version 2.0.2 - By SlySen
-# version 0.2.6 - By CB
-#
-# pylint...: --max-line-length 120
-# vim......: set expandtab
-# vim......: set tabstop=4
-#
+# version 3.2.0 - By CB
+
+
 import os, urllib, sys, traceback, xbmcplugin, xbmcaddon, xbmc, simplejson, xbmcgui
 
 from resources.lib import content, parse, navig
-
-#from collections import OrderedDict
 
 def peupler():
     if filtres['content']['mediaBundleId']>0:
@@ -108,7 +101,7 @@ except StandardError:
 filtres = simplejson.loads(FILTERS)
    
 if SOURCE_ID !='':
-    navig.jouer_video(SOURCE_ID)
+    navig.jouer_video(URL,SOURCE_ID)
 
 elif MODE == 99:
     ADDON.openSettings()

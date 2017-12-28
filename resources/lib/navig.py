@@ -1,13 +1,5 @@
 # -*- coding: utf-8 -*-
-# version 3.1.0 - By CB, PLafrance & andreq
-# version 3.0.0 - By CB
-# version 2.0.2 - By SlySen
-# version 0.2.6 - By CB
-#
-# pylint...: --max-line-length 120
-# vim......: set expandtab
-# vim......: set tabstop=4
-#
+# version 3.2.0 - By CB
 
 import sys,urllib, xbmcgui, xbmcplugin, xbmcaddon,re,cache, simplejson, xbmc
 
@@ -94,8 +86,6 @@ def ajouterVideo(show):
     episode = show['episodeNo']
     saison = show['seasonNo']
     
-
-
     is_it_ok = True
     entry_url = sys.argv[0]+"?url="+urllib.quote_plus(the_url)+"&sourceId="+(sourceId)
 
@@ -128,10 +118,13 @@ def ajouterVideo(show):
 RE_HTML_TAGS = re.compile(r'<[^>]+>')
 RE_AFTER_CR = re.compile(r'\n.*')
 
-def jouer_video(media_uid):
+def jouer_video(url,media_uid):
     """ function docstring """
     check_for_internet_connection()
-    
+
+    ref = re.split('/',url)
+    refID = ref[len(ref)-1]
+
     # Obtenir JSON avec liens RTMP du playlistService
     video_json = simplejson.loads(\
         cache.get_cached_content(\
@@ -139,10 +132,8 @@ def jouer_video(media_uid):
         )\
     )
 
-    play_list_item =video_json['playlistItems'][0]
-    
-    # Obtient les streams dans un playlist m3u8
-    m3u8_pl=cache.get_cached_content('https://mnmedias.api.telequebec.tv/m3u8/%s.m3u8' % play_list_item['refId'])
+    playList = video_json['playlistItems']
+    m3u8_pl=m3u8(refID)
 
     # Cherche le stream de meilleure qualité
     uri = obtenirMeilleurStream(m3u8_pl)   
@@ -152,17 +143,20 @@ def jouer_video(media_uid):
         item = xbmcgui.ListItem(\
             video_json['title'],\
             iconImage=video_json['imageUrl'],\
-            thumbnailImage=play_list_item['thumbnailImageUrl'], path=uri)
+            thumbnailImage=video_json['imageUrl'], path=uri)
         play_item = xbmcgui.ListItem(path=uri)
         xbmcplugin.setResolvedUrl(__handle__,True, item)
     else:
-        xbmc.executebuiltin('Notification(%s,Incapable d''obtenir lien du video,5000,%s')
+        xbmc.executebuiltin('Notification(Aucun lien disponible,Incapable d''obtenir lien du vidéo,5000)')
 
 def check_for_internet_connection():
     """ function docstring """
     if ADDON.getSetting('NetworkDetection') == 'false':
         return
     return
+
+def m3u8(refID):
+    return cache.get_cached_content('https://mnmedias.api.telequebec.tv/m3u8/%s.m3u8' % refID)
 
 def remove_any_html_tags(text, crlf=True):
     """ function docstring """
