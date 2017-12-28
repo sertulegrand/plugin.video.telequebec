@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# version 3.2.0 - By CB
+# version 3.1.1 - By CB
 
 import sys,urllib, xbmcgui, xbmcplugin, xbmcaddon,re,cache, simplejson, xbmc
 

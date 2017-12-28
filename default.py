@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# version 3.2.0 - By CB
+# version 3.1.1 - By CB
 
 
 import os, urllib, sys, traceback, xbmcplugin, xbmcaddon, xbmc, simplejson, xbmcgui
