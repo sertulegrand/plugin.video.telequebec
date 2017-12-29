@@ -160,11 +160,14 @@ def m3u8(refID):
 
 def remove_any_html_tags(text, crlf=True):
     """ function docstring """
-    text = RE_HTML_TAGS.sub('', text)
-    text = text.lstrip()
-    if crlf == True:
-        text = RE_AFTER_CR.sub('', text)
-    return text
+    try:
+        text = RE_HTML_TAGS.sub('', text)
+        text = text.lstrip()
+        if crlf == True:
+            text = RE_AFTER_CR.sub('', text)
+        return text
+    except Exception:
+        return ''
 
 def obtenirMeilleurStream(pl):
     maxBW = 0
