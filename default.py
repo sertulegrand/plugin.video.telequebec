@@ -2,34 +2,9 @@
 
 # version 3.1.1 - By CB
 
-
 import os, urllib, sys, traceback, xbmcplugin, xbmcaddon, xbmc, simplejson, xbmcgui
 
-from resources.lib import content, parse, navig
-
-def peupler():
-    if filtres['content']['mediaBundleId']>0:
-        creer_liste_videos()
-    elif filtres['content']['genreId']!='':
-        creer_liste_filtree()
-    else:
-        creer_menu_categories()
-
-def creer_menu_categories():
-    """ function docstring """
-
-    navig.ajouterItemAuMenu(content.dictOfGenres(filtres))
-    navig.ajouterItemAuMenu(content.dictOfMainDirs(filtres))
-
-def creer_liste_filtree():
-    """ function docstring """
-
-    navig.ajouterItemAuMenu(parse.get_liste_emissions(filtres))
-        
-
-def creer_liste_videos():
-    """ function docstring """
-    navig.ajouterItemAuMenu(parse.ListeVideosGroupees(filtres))
+from resources.lib import content, navig
 
 def get_params():
     """ function docstring """
@@ -107,7 +82,7 @@ elif MODE == 99:
     ADDON.openSettings()
     
 else:
-    peupler()
+    navig.peupler(filtres)
     set_content('episodes')
 
 
@@ -121,3 +96,9 @@ if MODE is not 4 and xbmcaddon.Addon().getSetting('DeleteTempFiFilesEnabled') ==
     for i in FILENAMES:
         if ".fi" in i:
             os.remove(os.path.join(PATH, i))
+
+if xbmcaddon.Addon().getSetting('ShowPopupInStartup') == 'true':
+    xbmcaddon.Addon().setSetting('ShowPopupInStartup','false')
+    dialog = xbmcgui.Dialog()
+    ok = dialog.ok('La [COLOR orange]Fabrique Culturelle[/COLOR] arrive sur Dépôt-Québec!', 'La Fabrique Culturelle est une plateforme numérique pour partager la culture de tout le Québec.', '','Disponible dès maintenant sur Dépôt-Québec.')
+

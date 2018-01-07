@@ -5,6 +5,7 @@
         <setting label="32101" type="bool" id="FanartEnabled" default="true"/>
         <setting label="32102" type="bool" id="FanartEmissionsEnabled" default="true" enable="eq(-1,true)"/>
         <setting label="32114" type="bool" id="EmissionNameInPlotEnabled" default="true"/>
+		<setting label="32115" type="bool" id="ShowPopupInStartup" default="true"/>
     </category> 
 
     <!-- ADVANCE -->

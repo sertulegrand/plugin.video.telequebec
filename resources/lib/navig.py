@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-# version 3.1.1 - By CB
+# version 3.1.3 - By CB
 
-import sys,urllib, xbmcgui, xbmcplugin, xbmcaddon,re,cache, simplejson, xbmc
+import sys,urllib, xbmcgui, xbmcplugin, xbmcaddon,re,cache, simplejson, xbmc, parse, content
 
 ADDON = xbmcaddon.Addon()
 ADDON_IMAGES_BASEPATH = ADDON.getAddonInfo('path')+'/resources/media/images/'
@@ -9,14 +9,34 @@ ADDON_FANART = ADDON.getAddonInfo('path')+'/fanart.jpg'
 
 __handle__ = int(sys.argv[1])
 
+def peupler(filtres):
+    if filtres['content']['mediaBundleId']>0:
+        ajouterItemAuMenu(parse.ListeVideosGroupees(filtres))
+    
+    else:
+        genreId = filtres['content']['genreId']
+        if genreId==-2:
+            ajouterItemAuMenu(content.dictOfPopulaires(filtres))
+        elif genreId>=-23 and genreId<=-21:
+            xbmc.log('populiare!!')
+            ajouterItemAuMenu(content.get_liste_populaire(filtres))
+        elif genreId!='':
+            ajouterItemAuMenu(content.get_liste_emissions(filtres))
+        else:
+            ajouterItemAuMenu(content.dictOfMainDirs(filtres))
+            ajouterItemAuMenu(content.dictOfGenres(filtres))
+
+
+
 def ajouterItemAuMenu(items):
     xbmcplugin.addSortMethod(__handle__, xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE)
     xbmcplugin.addSortMethod(__handle__, xbmcplugin.SORT_METHOD_DATE)
-    
+
+
     for item in items:
         if item['isDir'] == True:
             ajouterRepertoire(item)
-            
+
         else:
             ajouterVideo(item)
             xbmc.executebuiltin('Container.SetViewMode('+str(xbmcplugin.SORT_METHOD_DATE)+')')

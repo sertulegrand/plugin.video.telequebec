@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
+# version 3.1.3 - By CB
 
 import copy
 import content
 #from operator import itemgetter
 
-def get_liste_emissions(filtres):
-    liste = content.get_liste(filtres['content']['genreId'])
-    return content.formatListe(liste, filtres)
 
 def ListeVideosFiltrees(mediaBundleId, filtres):
     liste = content.getListeOfVideo(mediaBundleId, filtres)
@@ -21,7 +19,10 @@ def ListeVideosFiltrees(mediaBundleId, filtres):
 
 def ListeVideosGroupees(filtres):
     filtresShow = filtres['show']
-    liste = ListeVideosFiltrees(filtres['content']['mediaBundleId'], filtres)
+    if filtres['content']['genreId']==-2:
+        liste = content.get_liste(filtres['content']['genreId'])
+    else:
+        liste = ListeVideosFiltrees(filtres['content']['mediaBundleId'], filtres)
     index = 0
     for value in filtresShow.values():
         if value != '':

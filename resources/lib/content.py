@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
-# version 3.0.0 - By CB
+# version 3.1.3 - Par CB
 
-import urllib2, simplejson, parse, cache, re, xbmcaddon
+import urllib2, simplejson, parse, cache, re, xbmcaddon,xbmc
 
 BASE_URL = 'http://zonevideo.api.telequebec.tv/data/v1/[YourApiKey]/'
 AZ_URL = 'http://zonevideo.api.telequebec.tv/data/v1/[YourApiKey]/Az'
 DOSSIERS_URL = 'http://zonevideo.api.telequebec.tv/data/v1/[YourApiKey]/folders'
-#POPULAIRE_URL = 'http://zonevideo.api.telequebec.tv/data/v1/[YourApiKey]/populars/'
+POPULAIRE_URL = 'http://zonevideo.api.telequebec.tv/data/v1/[YourApiKey]/populars/'
+
 MEDIA_BUNDLE_URL = BASE_URL + 'MediaBundle/'
 
 SEASON = 'Saison'
@@ -18,7 +19,8 @@ INTEGRAL = 'Integral'
 
 
 def dictOfGenres(filtres):
-    liste = [{'genreId': 0, 'nom': 'A %C3%A0 Z - Toutes les cat%C3%A9gories','resume':'Tout le contenu disponible.'}]
+    liste =[]
+    liste.append({'genreId': 0, 'nom': '[B]A %C3%A0 Z - Toutes les cat%C3%A9gories[/B]','resume':'Tout le contenu disponible.'})
     liste.append({'genreId': 1, 'nom': 'Documentaires','resume':'Les documentaires.'})
     liste.append({'genreId': 2, 'nom': 'Famille', 'resume':'Pour toute la famille.'})
     liste.append({'genreId': 3, 'nom': 'Films','resume':'Les films.'})
@@ -41,10 +43,11 @@ def dictOfGenres(filtres):
     return liste
 
 def dictOfMainDirs(filtres):
+    liste = []
 
-    liste = [{'genreId': -1, 'nom': '-- Dossiers --', 'url': DOSSIERS_URL,'resume':'Des segments abordant un sujet commun.'}]
-    #liste.append({'genreId': -2, 'nom': '-- Populaires --', 'url' : POPULAIRE_URL})
-    #liste.append({'genreId': -3, 'nom': '-- R%C3%A9cents --', 'url' : RECENTS_URL})
+    liste.append({'genreId': -2, 'nom': '[B]Populaires[/B]', 'url' : POPULAIRE_URL,'resume':'Les videos populaires du moment.'})
+    liste.append({'genreId': -1, 'nom': '[B]Dossiers[/B]', 'url': DOSSIERS_URL,'resume':'Des segments abordant un sujet commun.'})
+
     for item in liste :
         item['isDir']= True
         item['nom']= urllib2.unquote(item['nom'])
@@ -56,9 +59,27 @@ def dictOfMainDirs(filtres):
         item['filtres']['fullNameItems'].append('nomDuShow')        
     return liste
 
+def dictOfPopulaires(filtres):
+    liste=[{'genreId': -21, 'nom': 'Populaires en ce moment', 'url' : 'Day/','resume':'Les videos populaires en ce moment.'}]
+    liste.append({'genreId': -22, 'nom': 'Populaires cette semaine', 'url' :'Week/','resume':'Les videos populaires cette semaine.'})
+    liste.append({'genreId': -23, 'nom': 'Populaires depuis 1 mois', 'url' : 'Month/','resume':'Les videos populaires depuis 1 mois.'})
+    for item in liste :
+        item['isDir']= True
+        item['nom']= urllib2.unquote(item['nom'])
+        item['image']=xbmcaddon.Addon().getAddonInfo('path')+'/icon.png'
+        item['fanart']=xbmcaddon.Addon().getAddonInfo('path')+'/fanart.jpg'
+        item['filtres']= parse.getCopy(filtres)
+        item['filtres']['content']['genreId'] = item['genreId']
+        item['filtres']['content']['url'] = item['url']
+        item['filtres']['show']={}
+        item['filtres']['fullNameItems'].append('nomDuShow')        
+    return liste
+
+    
 def formatListe(liste, filtres):
     newListe = []
     for item in liste:
+        print item.keys()
         newItem = {}
         newItem['isDir'] = True
         newItem['nom'] = item['view']['title']
@@ -74,7 +95,55 @@ def formatListe(liste, filtres):
         newListe.append(newItem)
 
     return newListe
+def get_liste_populaire(filtres):
+    show = getLinkPop(filtres['content']['url'])
+    items = show['items']
 
+    newListe = []
+    for episode in items:
+        logjson(episode)
+        newItem = {}
+        newItem['isDir'] = False
+        newItem[LABEL] = 'Contenu'
+        newItem['categoryType'] = episode['categoryType']
+        newItem['url'] = episode['permalink']
+        newItem['image'] = getThumbnails(episode)
+        newItem['genreId'] = ''
+        newItem['nomComplet'] = episode['view']['title']
+        newItem['resume'] = episode['view']['description']
+
+        try:
+             newItem[SEASON] = episode['view']['season'].encode('utf-8','ignore')
+        except Exception:
+             newItem[SEASON] =''
+        
+        newItem['duree'] = episode['duration']/1000
+        newItem['seasonNo'] = newItem[SEASON]
+        
+        try:
+            newItem['episodeNo'] =episode['view']['episode'].encode('utf-8','ignore')
+        except Exception:
+            newItem['episodeNo'] =''
+            
+        newItem['startDate'] = episode['startDate']
+        newItem['endDate'] = episode['endDate']
+        newItem['endDateTxt'] = episode['view']['endDate']
+
+
+        newItem['streamInfo'] = episode['streamInfo']
+
+        newItem['nomDuShow'] =  episode['view']['containerTitle']
+        
+        newItem['sourceId'] = episode['streamInfo']['sourceId']
+        newItem[EPISODE] = str(newItem['episodeNo'])
+        newItem['fanart'] = getImage(episode['view']['thumbImg'],'1280','720')
+        newItem['nom'] = ''
+
+        newItem['nom'] = episode['view']['containerTitle'] + ' - ' + episode['view']['title']
+        newListe.append(newItem)
+
+    return newListe
+    
 def getListeOfVideo(mediaBundleId, filtres):
     show = getShow(mediaBundleId)
     fanart_url = getFanArt(show)
@@ -120,10 +189,15 @@ def getListeOfVideo(mediaBundleId, filtres):
             for tag in filtres['fullNameItems']:
                 newItem['nom'] = newItem['nom'] + newItem[tag] + ' - '
 
+
             newItem['nom'] = newItem['nom'] + episode['view']['title']
             newListe.append(newItem)
 
     return newListe
+
+def get_liste_emissions(filtres):
+    liste = get_liste(filtres['content']['genreId'])
+    return formatListe(liste, filtres)
 
 def get_liste(categorie):
     if categorie >= 0:
@@ -138,6 +212,8 @@ def get_liste(categorie):
         return listeFiltree
     if categorie == -1:
         return getJsonBlock(DOSSIERS_URL, 1)
+    if categorie == -2:
+        return getJsonBlock(POPULAIRE_DAY,1)['data'][0]['items']
     return {}
 
 def isGenre(genreValue, show):
@@ -155,20 +231,23 @@ def isIntegral(show):
         return False
 
 def getThumbnails(show):
-    thumbLink = show['view']['thumbImg']
-    thumbLink = re.sub('{w}', '320', thumbLink)
-    thumbLink = re.sub('{h}', '180', thumbLink)
-    return thumbLink
+    return getImage(show['view']['thumbImg'], '320','180')
 
 def getFanArt(show):
-    thumbLink = show['view']['headerImg']
-    thumbLink = re.sub('{w}', '1280', thumbLink)
-    thumbLink = re.sub('{h}', '720', thumbLink)
-    return thumbLink
+    return getImage(show['view']['headerImg'],'1280','720')
 
+def getImage(url,width,height):
+    link = re.sub('{w}', width, url)
+    link = re.sub('{h}', height, link)
+    return link
+    
 def getShow(mediaBundleId):
     database = simplejson.loads(cache.get_cached_content(MEDIA_BUNDLE_URL + str(mediaBundleId)))
     return database['data']
+
+def getLinkPop(url):
+    database = simplejson.loads(cache.get_cached_content(POPULAIRE_URL + str(url)))
+    return database['data'][0]
 
 def getJsonBlock(url, block):
     try:
@@ -179,4 +258,6 @@ def getJsonBlock(url, block):
     finally:
         return dataBlock
 
+def logjson(json):
+    xbmc.log(simplejson.dumps(json, sort_keys=True,indent=4, separators=(',', ': ')))
 
