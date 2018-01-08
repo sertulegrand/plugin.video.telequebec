@@ -250,13 +250,13 @@ def getLinkPop(url):
     return database['data'][0]
 
 def getJsonBlock(url, block):
+    dataBlock = []
     try:
-        dataBlock = simplejson.loads(cache.get_cached_content(url))
-        dataBlock = dataBlock['data'][block]['items']
-    except ValueError:
+        db = simplejson.loads(cache.get_cached_content(url))
+        dataBlock = db['data'][block]['items']
+    except Exception:
         dataBlock = []
-    finally:
-        return dataBlock
+    return dataBlock
 
 def logjson(json):
     xbmc.log(simplejson.dumps(json, sort_keys=True,indent=4, separators=(',', ': ')))
