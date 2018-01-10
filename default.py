@@ -99,6 +99,9 @@ if MODE is not 4 and xbmcaddon.Addon().getSetting('DeleteTempFiFilesEnabled') ==
 
 if xbmcaddon.Addon().getSetting('ShowPopupInStartup') == 'true':
     xbmcaddon.Addon().setSetting('ShowPopupInStartup','false')
-    dialog = xbmcgui.Dialog()
-    ok = dialog.ok('La [COLOR orange]Fabrique Culturelle[/COLOR] arrive sur Dépôt-Québec!', 'La Fabrique Culturelle est une plateforme numérique pour partager la culture de tout le Québec.', '','Disponible dès maintenant sur Dépôt-Québec.')
+    try:
+        fabriqueculturelle = xbmcaddon.Addon('plugin.video.fabriqueculturelle')
+    except Exception:
+        dialog = xbmcgui.Dialog()
+        ok = dialog.ok('La [COLOR orange]Fabrique Culturelle[/COLOR] arrive sur Dépôt Québec!', 'La Fabrique Culturelle est une plateforme numérique pour partager la culture de tout le Québec.', '','Disponible dès maintenant sur Dépôt Québec.')
 
