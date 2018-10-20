@@ -101,7 +101,6 @@ def get_liste_populaire(filtres):
 
     newListe = []
     for episode in items:
-        logjson(episode)
         newItem = {}
         newItem['isDir'] = False
         newItem[LABEL] = 'Contenu'
@@ -259,5 +258,5 @@ def getJsonBlock(url, block):
     return dataBlock
 
 def logjson(json):
-    xbmc.log(simplejson.dumps(json, sort_keys=True,indent=4, separators=(',', ': ')))
+    #xbmc.log(simplejson.dumps(json, sort_keys=True,indent=4, separators=(',', ': ')))
 

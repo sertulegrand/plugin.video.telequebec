@@ -152,7 +152,6 @@ def jouer_video(url,media_uid):
         )\
     )
 
-    playList = video_json['playlistItems']
     m3u8_pl=m3u8(refID)
 
     # Cherche le stream de meilleure qualité
